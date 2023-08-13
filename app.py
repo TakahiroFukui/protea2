@@ -1,6 +1,33 @@
 
 import streamlit as st
 import openai
+pip install streamlit-authenticator
+import streamlit_authenticator as sa
+
+auth = sa.Authenticator(
+    SECRET_KEY,
+    token_url="/token",
+    token_ttl=3600,
+    password_hashing_method=sa.PasswordHashingMethod.BCRYPT,
+)
+
+@auth.login_required
+def protected():
+    st.write("This is a protected route.")
+
+@st.route("/login")
+def login():
+    username = st.text_input("ユーザー名")
+    password = st.text_input("パスワード", type="password")
+ 
+    if st.button("ログイン"):
+        user = auth.authenticate(username, password)
+        if user is not None:
+            auth.login_user(user)
+            st.success("ログインに成功しました。")
+        else:
+            st.error("無効なユーザー名またはパスワードです。")
+
 
 # Streamlit Community Cloudの「Secrets」からOpenAI API keyを取得
 openai.api_key = st.secrets.OpenAIAPI.openai_api_key
